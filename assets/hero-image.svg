@@ -1,0 +1,13 @@
+
+  <svg xmlns="http://www.w3.org/2000/svg" width="500" height="400" viewBox="0 0 500 400">
+    <rect width="500" height="400" fill="#f7f9fc"/>
+    <circle cx="250" cy="150" r="100" fill="#e0e5ec"/>
+    <rect x="150" y="280" width="200" height="100" fill="#d0d5dc"/>
+    <text x="250" y="200" font-family="Arial" font-size="24" text-anchor="middle" dominant-baseline="middle" fill="#2D5BFF">
+      企業価値査定
+    </text>
+    <text x="250" y="330" font-family="Arial" font-size="18" text-anchor="middle" dominant-baseline="middle" fill="#1A2B3C">
+      AI分析
+    </text>
+  </svg>
+  
