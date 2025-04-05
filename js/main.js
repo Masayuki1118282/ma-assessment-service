@@ -477,6 +477,8 @@ function initFormSubmission() {
         };
 
         // ✅ バックエンドのAPIにデータを送信（ローカル環境用）
+        const earlyEmail = $('#initial-email').val();
+        
         fetch('/api/send-proposal', {
             method: 'POST',
             headers: {
