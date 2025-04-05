@@ -473,25 +473,21 @@ function initFormSubmission() {
             email: $('#email').val(),
             phone: $('#phone').val(),
             consent: $('#consent').is(':checked'),
-            initialEmail: $('#initial-email').val() 
+            initialEmail: $('#initial-email').val()
         };
 
-        // ✅ バックエンドのAPIにデータを送信（ローカル環境用）
-        const earlyEmail = $('#initial-email').val();
-        
+        // ✅ 全フォームデータを送信
         fetch('/api/send-proposal', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                email: earlyEmail
-            })
+            body: JSON.stringify(formData)
         })
         .then(response => {
             if (response.ok) {
                 alert('ありがとうございます。提案をご希望のM&A会社から連絡があります。');
-        
+
                 // フォームをリセット
                 $('#assessment-form-element')[0].reset();
                 $('.form-step').hide();
