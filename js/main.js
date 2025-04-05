@@ -75,22 +75,46 @@ function initScrollAnimations() {
  */
 function initFormSteps() {
     // 次へボタンのクリックイベント
-    $('.next-step').click(function() {
-        const currentStep = $(this).closest('.form-step');
-        const nextStep = currentStep.next('.form-step');
-        const currentStepNumber = parseInt(currentStep.attr('id').split('-')[1]);
-        const nextStepNumber = currentStepNumber + 1;
-        
-        // 現在のステップのバリデーション
-        if (validateStep(currentStepNumber)) {
-            // 次のステップに進む
-            currentStep.hide();
-            nextStep.show();
-            
-            // プログレスバーの更新
-            updateProgressBar(nextStepNumber);
+$('.next-step').click(function () {
+    const currentStep = $(this).closest('.form-step');
+    const nextStep = currentStep.next('.form-step');
+    const currentStepNumber = parseInt(currentStep.attr('id').split('-')[1]);
+    const nextStepNumber = currentStepNumber + 1;
+
+    // 現在のステップのバリデーション
+    if (validateStep(currentStepNumber)) {
+        // ✅ ステップ1ならメールアドレスを送信
+        if (currentStepNumber === 1) {
+            const earlyEmail = $('#initial-email').val();
+            if (earlyEmail) {
+                fetch('/api/send-proposal', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json' // ← ✅ 正しくオブジェクトで記述
+                    },
+                    body: JSON.stringify({
+                        email: earlyEmail
+                    })
+                })
+                .then(res => {
+                    if (res.ok) {
+                        console.log('📩 ステップ1メール送信成功');
+                    } else {
+                        console.error('❌ ステップ1メール送信失敗');
+                    }
+                })
+                .catch(err => console.error('❌ ステップ1メール送信エラー:', err));
+            }
         }
-    });
+
+        // 次のステップに進む
+        currentStep.hide();
+        nextStep.show();
+
+        // プログレスバーの更新
+        updateProgressBar(nextStepNumber);
+    }
+});
     
     // 戻るボタンのクリックイベント
     $('.prev-step').click(function() {
@@ -117,6 +141,12 @@ function initFormSteps() {
             // 査定計算を実行
             calculateValuation();
             
+            // ✅ ステップ1で入力したメールアドレスをステップ3に引き継ぐ
+            const earlyEmail = $('#initial-email').val();
+            if (earlyEmail) {
+                $('#email').val(earlyEmail);
+            }
+
             // 結果ステップに進む
             currentStep.hide();
             resultStep.show();
@@ -426,7 +456,6 @@ function initFormSubmission() {
             return;
         }
         
-        // フォームデータの収集
         const formData = {
             industry: $('#industry').val(),
             companyAge: $('#company-age').val(),
@@ -443,24 +472,36 @@ function initFormSubmission() {
             contactName: $('#contact-name').val(),
             email: $('#email').val(),
             phone: $('#phone').val(),
-            consent: $('#consent').is(':checked')
+            consent: $('#consent').is(':checked'),
+            initialEmail: $('#initial-email').val() 
         };
+
+        // ✅ バックエンドのAPIにデータを送信（ローカル環境用）
+        fetch('/api/send-proposal', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                email: earlyEmail
+            })
+        })
+        .then(response => {
+            if (response.ok) {
+                alert('ありがとうございます。提案をご希望のM&A会社から連絡があります。');
         
-        // 実際のプロジェクトではここでAPIにデータを送信
-        // この例ではコンソールに出力するだけ
-        console.log('送信データ:', formData);
-        
-        // 送信成功メッセージ
-        alert('ありがとうございます。提案をご希望のM&A会社から連絡があります。');
-        
-        // フォームをリセット
-        $('#assessment-form-element')[0].reset();
-        
-        // 最初のステップに戻る
-        $('.form-step').hide();
-        $('#step-1').show();
-        
-        // プログレスバーの更新
-        updateProgressBar(1);
-    });
-}
+                // フォームをリセット
+                $('#assessment-form-element')[0].reset();
+                $('.form-step').hide();
+                $('#step-1').show();
+                updateProgressBar(1);
+            } else {
+                alert('送信に失敗しました。もう一度お試しください。');
+            }
+        })
+        .catch(error => {
+            console.error('送信エラー:', error);
+            alert('送信時にエラーが発生しました。');
+        });
+    }); // ← submit の function を閉じる
+} // ← initFormSubmission を閉じる
